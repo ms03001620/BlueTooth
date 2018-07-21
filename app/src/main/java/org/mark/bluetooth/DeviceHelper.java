@@ -8,7 +8,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,9 +15,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.UUID;
 
-/**
- * Created by mazhenjin on 2017/12/5.
- */
 
 public class DeviceHelper {
     private BluetoothAdapter mBluetoothAdapter;
@@ -26,33 +22,35 @@ public class DeviceHelper {
     private BluetoothSocket mBluetoothSocketClient;
 
     private ConnectedThread mServer;
+    private Context mContext;
 
     private final String TAG = "test";
     private final String ID = "00001101-0000-1000-8000-00805F9B34FB";
 
     public DeviceHelper(Context context) {
+        mContext = context;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mBluetoothAdapter = ((BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE)).getAdapter();
-        }else{
+        } else {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
     }
 
     @Nullable
-    public BluetoothAdapter getDefaultAdapter(){
+    public BluetoothAdapter getDefaultAdapter() {
         return mBluetoothAdapter;
     }
 
-    public void startServer(){
+    public void startServer() {
         Thread waitAcceptThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     BluetoothServerSocket bluetoothServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord(TAG, getUuid());
-                    mBluetoothSocket =  bluetoothServerSocket.accept();
+                    mBluetoothSocket = bluetoothServerSocket.accept();
                     bluetoothServerSocket.close();
 
-                    if(mBluetoothSocket!=null){
+                    if (mBluetoothSocket != null) {
                         BluetoothDevice device = mBluetoothSocket.getRemoteDevice();
                         Log.d("DeviceHelper", "接受客户连接 , 远端设备名字:" + device.getName() + " , 远端设备地址:" + device.getAddress());
 
@@ -63,7 +61,6 @@ public class DeviceHelper {
                             mServer.start();
                         }
                     }
-
 
 
                 } catch (Exception e) {
@@ -77,7 +74,7 @@ public class DeviceHelper {
     }
 
     public void connect(@NotNull final BluetoothDevice bluetoothDevice, final ConnectEvent event) {
-        if(mBluetoothAdapter.isDiscovering()){
+        if (mBluetoothAdapter.isDiscovering()) {
             event.onDiscovering();
             return;
         }
@@ -87,7 +84,7 @@ public class DeviceHelper {
             @Override
             public void run() {
                 try {
-                    if(mBluetoothSocketClient!=null && mBluetoothSocketClient.isConnected()){
+                    if (mBluetoothSocketClient != null && mBluetoothSocketClient.isConnected()) {
                         mBluetoothSocketClient.close();
                     }
 
@@ -105,6 +102,21 @@ public class DeviceHelper {
         connectToServerThread.start();
     }
 
+    @Nullable
+    public BluetoothDevice getDefaultDevice() {
+        String mac = PreferencesUtils.restoreMacAddressFromShare(mContext);
+        if (mac.length() == 0) {
+            return null;
+        }
+
+        return mBluetoothAdapter.getRemoteDevice(mac);
+    }
+
+    public void saveToDefault(BluetoothDevice device) {
+        String mac = device.getAddress();
+        PreferencesUtils.saveMacAddressToShare(mContext, mac);
+    }
+
     public interface ConnectEvent {
         void onDiscovering();
 
@@ -113,7 +125,7 @@ public class DeviceHelper {
         void onException(Exception e);
     }
 
-    private UUID getUuid(){
+    private UUID getUuid() {
         return UUID.fromString(ID);
     }
 }

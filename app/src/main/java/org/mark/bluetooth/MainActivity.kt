@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
@@ -36,9 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         mDeviceListAdatper = DeviceListAdapter(this, AdapterView.OnItemClickListener { adapterView: AdapterView<*>?, view: View, position: Int, id: Long ->
             val device = mDeviceListAdatper.getItem(position)
-
-            val intent = Intent(this, CtrlActivity::class.java)
-            intent.putExtra("device", device);
+            val intent = CtrlActivity.createIntent(this, device);
             startActivity(intent)
 
 /*            mDeviceHelper.connect(device, object : DeviceHelper.ConnectEvent {

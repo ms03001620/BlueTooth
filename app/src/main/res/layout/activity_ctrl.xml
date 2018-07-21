@@ -5,18 +5,66 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="org.mark.bluetooth.MainActivity">
-    <Button
-        android:id="@+id/test"
-        android:layout_width="wrap_content"
-        android:text="11111"
-        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_clear1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="clear1" />
+
+        <Button
+            android:id="@+id/btn_clear2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="clear2" />
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btn_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="btn1" />
+
+            <Button
+                android:id="@+id/btn_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="btn_2" />
+
+            <Button
+                android:id="@+id/btn_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="btn_3" />
+
+            <Button
+                android:id="@+id/btn_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="btn_4" />
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
 
     <com.gcssloop.widget.RockerView xmlns:rocker="http://schemas.android.com/apk/res-auto"
         android:id="@+id/rocker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        rocker:area_radius="80dp"
         rocker:area_background="#22222222"
+        rocker:area_radius="80dp"
         rocker:rocker_background="#888888"
         rocker:rocker_radius="30dp" />
 

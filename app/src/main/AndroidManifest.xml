@@ -16,23 +16,27 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait">
+
+        </activity>
+        <activity
+            android:name=".CtrlActivity"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".BluetoothLeService"
+            android:enabled="true" />
+
+        <activity
+            android:name=".SplashActivity"
+            android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-
-        <activity
-            android:name=".CtrlActivity"
-            android:screenOrientation="portrait">
 
         </activity>
-
-        <service
-            android:name=".BluetoothLeService"
-            android:enabled="true" />
     </application>
 
 </manifest>
