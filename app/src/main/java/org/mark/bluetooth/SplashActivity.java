@@ -15,17 +15,16 @@ public class SplashActivity extends AppCompatActivity {
 
         DeviceHelper deviceHelper = new DeviceHelper(this);
         BluetoothAdapter adapter = deviceHelper.getDefaultAdapter();
+        BluetoothDevice device = deviceHelper.getDefaultDevice();
 
-        if (adapter != null && adapter.isEnabled()) {
-            BluetoothDevice device = deviceHelper.getDefaultDevice();
-            if (device != null) {
-                Intent intent = CtrlActivity.createIntent(this, device);
-                startActivity(intent);
-                return;
-            }
+        if (adapter != null && adapter.isEnabled() && device != null) {
+            Intent intent = CtrlActivity.createIntent(this, device);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
         }
 
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        finish();
     }
 }

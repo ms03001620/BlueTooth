@@ -11,8 +11,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import com.gcssloop.widget.RockerView;
 
@@ -26,34 +28,35 @@ public class CtrlActivity extends AppCompatActivity {
     @Nullable
     private BluetoothLeService mBluetoothLeService;
     RockerView mRockerView;
+    EditText mEditMessage;
 
-    String KEY_CLEAR = "$0,0,0,0,0,0,0,0,0#";
+    String KEY_CLEAR =  "$0,0,0,0,0,0,0,0,0#";
 
+    String KEY_GO =     "$1,0,0,0,0,0,0,0,0#";
+    String KEY_BACK =   "$2,0,0,0,0,0,0,0,0#";
+    String KEY_RIGHT =  "$3,0,0,0,0,0,0,0,0#";
+    String KEY_LEFT =   "$4,0,0,0,0,0,0,0,0#";
 
-    String KEY_GO = "$1,0,0,0,0,0,0,0,0#";
-    String KEY_BACK = "$2,0,0,0,0,0,0,0,0#";
-    String KEY_RIGHT = "$3,0,0,0,0,0,0,0,0#";
-    String KEY_LEFT = "$4,0,0,0,0,0,0,0,0#";
-
-    String key_t1 = "$5,0,0,0,0,0,0,0,0#";
-    String key_t2 = "$6,0,0,0,0,0,0,0,0#";
-    String key_t3 = "$7,0,0,0,0,0,0,0,0#";
-    String key_t4 = "$8,0,0,0,0,0,0,0,0#";
-
-
-    String key_a8 = "$0,0,0,0,8,0,0,0,0#";
-    String key_a3 = "$0,0,0,0,3,0,0,0,0#";
-    String key_a4 = "$0,0,0,0,4,0,0,0,0#";
-    String key_a6 = "$0,0,0,0,6,0,0,0,0#";
-    String key_a7 = "$0,0,0,0,7,0,0,0,0#";
-    String key_b1 = "$0,0,0,0,0,0,1,0,0#";
-
+    String KEY_ROUND_LEFT =     "$0,1,0,0,0,0,0,0,0#";
+    String KEY_ROUND_RIGHT =    "$0,2,0,0,0,0,0,0,0#";
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ctrl);
+        mEditMessage = findViewById(R.id.edit_message);
+        mEditMessage.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+        final EditText edit = findViewById(R.id.edit);
+        findViewById(R.id.btn_send).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = edit.getText().toString();
+                mBluetoothLeService.WriteValue(message);
+            }
+        });
+
         mDevice = getIntent().getParcelableExtra("device");
         bindService(new Intent(this, BluetoothLeService.class), mServiceConnection, BIND_AUTO_CREATE);
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
@@ -84,14 +87,6 @@ public class CtrlActivity extends AppCompatActivity {
                 mBluetoothLeService.WriteValue(KEY_CLEAR);
             }
         });
-
-        findViewById(R.id.btn_clear2).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mBluetoothLeService.WriteValue(key_a8);
-            }
-        });
-
 
 
         findViewById(R.id.btn_1).setOnClickListener(new View.OnClickListener() {
@@ -167,18 +162,23 @@ public class CtrlActivity extends AppCompatActivity {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 Log.d("CtrlActivity", "ACTION_GATT_CONNECTED");
+                mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_blue_dark));
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 Log.d("CtrlActivity", "ACTION_GATT_DISCONNECTED");
+                mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_red_dark));
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 Log.d("CtrlActivity", "ACTION_GATT_SERVICES_DISCOVERED");
-                mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_red_dark));
-
+                mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_orange_dark));
                 DeviceHelper deviceHelper = new DeviceHelper(context);
                 deviceHelper.saveToDefault(mDevice);
-
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_green_dark));
                 Log.d("CtrlActivity", "ACTION_DATA_AVAILABLE");
                 String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
+                mEditMessage.append("\n");
+                mEditMessage.append(System.currentTimeMillis()/1000+"  ");
+                mEditMessage.append(data);
+                mEditMessage.scrollTo(0, 1000);
             }
         }
     };
