@@ -27,18 +27,19 @@ public class CtrlActivity extends AppCompatActivity {
     private BluetoothDevice mDevice;
     @Nullable
     private BluetoothLeService mBluetoothLeService;
-    RockerView mRockerView;
-    EditText mEditMessage;
+    private RockerView mRockerView;
+    private SimpleRockerListener mSimpleRockerListener;
+    private EditText mEditMessage;
 
-    String KEY_CLEAR =  "$0,0,0,0,0,0,0,0,0#";
+    String KEY_CLEAR = "$0,0,0,0,0,0,0,0,0#";
 
-    String KEY_GO =     "$1,0,0,0,0,0,0,0,0#";
-    String KEY_BACK =   "$2,0,0,0,0,0,0,0,0#";
-    String KEY_RIGHT =  "$3,0,0,0,0,0,0,0,0#";
-    String KEY_LEFT =   "$4,0,0,0,0,0,0,0,0#";
+    String KEY_GO = "$1,0,0,0,0,0,0,0,0#";
+    String KEY_BACK = "$2,0,0,0,0,0,0,0,0#";
+    String KEY_LEFT = "$3,0,0,0,0,0,0,0,0#";
+    String KEY_RIGHT = "$4,0,0,0,0,0,0,0,0#";
 
-    String KEY_ROUND_LEFT =     "$0,1,0,0,0,0,0,0,0#";
-    String KEY_ROUND_RIGHT =    "$0,2,0,0,0,0,0,0,0#";
+    String KEY_ROUND_LEFT = "$0,1,0,0,0,0,0,0,0#";
+    String KEY_ROUND_RIGHT = "$0,2,0,0,0,0,0,0,0#";
 
 
     @Override
@@ -63,22 +64,34 @@ public class CtrlActivity extends AppCompatActivity {
 
 
         mRockerView = findViewById(R.id.rocker);
-/*        rockerView.setListener(new RockerView.RockerListener() {
-
+        mSimpleRockerListener = new SimpleRockerListener(new SimpleRockerListener.OnActionChange() {
             @Override
-            public void callback(int eventType, int currentAngle, float currentDistance) {
-                switch (eventType) {
-                    case RockerView.EVENT_ACTION:
-                        // 触摸事件回调
-                        Log.e("EVENT_ACTION-------->", "angle="+currentAngle+" - distance"+currentDistance);
+            public void onAction(SimpleRockerListener.Action action) {
+                if (mBluetoothLeService == null) {
+                    return;
+                }
+
+                switch (action) {
+                    case UP:
+                        mBluetoothLeService.WriteValue(KEY_GO);
                         break;
-                    case RockerView.EVENT_CLOCK:
-                        // 定时回调
-                        Log.e("EVENT_CLOCK", "angle="+currentAngle+" - distance"+currentDistance);
+                    case RIGTH:
+                        mBluetoothLeService.WriteValue(KEY_RIGHT);
                         break;
+                    case DOWN:
+                        mBluetoothLeService.WriteValue(KEY_BACK);
+                        break;
+                    case LEFT:
+                        mBluetoothLeService.WriteValue(KEY_LEFT);
+                        break;
+                    case STOP:
+                        mBluetoothLeService.WriteValue(KEY_CLEAR);
+                        break;
+
                 }
             }
-        });*/
+        });
+        mRockerView.setListener(mSimpleRockerListener);
 
 
         findViewById(R.id.btn_clear1).setOnClickListener(new View.OnClickListener() {
@@ -141,7 +154,7 @@ public class CtrlActivity extends AppCompatActivity {
         }
     };
 
-    public static Intent createIntent(Context context, BluetoothDevice device){
+    public static Intent createIntent(Context context, BluetoothDevice device) {
         Intent intent = new Intent(context, CtrlActivity.class);
         intent.putExtra("device", device);
         return intent;
@@ -162,13 +175,13 @@ public class CtrlActivity extends AppCompatActivity {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 Log.d("CtrlActivity", "ACTION_GATT_CONNECTED");
-                mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_blue_dark));
+                mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_orange_dark));
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 Log.d("CtrlActivity", "ACTION_GATT_DISCONNECTED");
                 mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_red_dark));
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 Log.d("CtrlActivity", "ACTION_GATT_SERVICES_DISCOVERED");
-                mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_orange_dark));
+                mRockerView.setRockerColor(context.getResources().getColor(android.R.color.holo_blue_dark));
                 DeviceHelper deviceHelper = new DeviceHelper(context);
                 deviceHelper.saveToDefault(mDevice);
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
@@ -176,7 +189,7 @@ public class CtrlActivity extends AppCompatActivity {
                 Log.d("CtrlActivity", "ACTION_DATA_AVAILABLE");
                 String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 mEditMessage.append("\n");
-                mEditMessage.append(System.currentTimeMillis()/1000+"  ");
+                mEditMessage.append(System.currentTimeMillis() / 1000 + "  ");
                 mEditMessage.append(data);
                 mEditMessage.scrollTo(0, 1000);
             }
